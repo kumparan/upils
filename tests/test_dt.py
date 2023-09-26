@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime
-from kum_utils import dt
+from upils import dt
 
 
 class DTCase(unittest.TestCase):

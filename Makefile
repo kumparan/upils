@@ -1,5 +1,5 @@
 lint:
-	poetry run pylint ./kum_utils --fail-under=6
+	poetry run pylint ./upils --fail-under=6
 
-test:
+test:lint
 	poetry run python -m unittest discover

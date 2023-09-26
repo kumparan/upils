@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "kum-utils"
+name = "upils"
 version = "0.1.0"
 description = ""
 authors = ["Aslam Hadi Harsono <aslam.hadi@kumparan.com>"]
