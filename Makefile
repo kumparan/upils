@@ -3,3 +3,6 @@ lint:
 
 test:lint
 	poetry run python -m unittest discover
+
+publish:
+	poetry publish --build
