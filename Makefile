@@ -6,3 +6,7 @@ test:lint
 
 publish:
 	poetry publish --build
+
+format-all-files:
+	poetry run black .
+	poetry run isort .
