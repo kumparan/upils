@@ -10,3 +10,11 @@ publish:
 format-all-files:
 	poetry run black .
 	poetry run isort .
+
+changelog_args=-o CHANGELOG.md -tag-filter-pattern '^v'
+
+changelog:
+ifdef version
+	$(eval changelog_args=--next-tag $(version) $(changelog_args))
+endif
+	git-chglog $(changelog_args)
