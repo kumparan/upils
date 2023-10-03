@@ -1,6 +1,7 @@
 """Module providing custom configuration for loguru"""
 import json
 import sys
+from typing import Union
 
 from loguru import logger
 
@@ -32,8 +33,13 @@ def patching(record):
     record["extra"]["serialized"] = serialize(record)
 
 
-def configure_logger(level: str) -> logger:
-    """Configuration for custom loguru"""
+def configure_logger(level: Union[str, int]) -> logger:
+    """
+    Configuration for custom loguru
+
+    :param level: logging level. can be str or int.
+    https://docs.python.org/3/library/logging.html#logging-levels
+    """
 
     # remove default option from loguru. if we don't remove this, it will result in duplicated logs
     logger.remove(0)
