@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime
+
 from upils import datetime
 
 
@@ -10,5 +11,5 @@ class DTCase(unittest.TestCase):
         self.assertEqual(rfc, "2009-10-05T18:00:00.000000Z")  # add assertion here
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
