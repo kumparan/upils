@@ -24,6 +24,7 @@ def serialize(record):
         "file": {"name": record["file"].name, "path": record["file"].path},
         "line": record["line"],
         "exception": exception,
+        "extra": record["extra"]
     }
     return json.dumps(subset, default=str, ensure_ascii=False) + "\n"
 
@@ -44,7 +45,6 @@ def configure_logger(level: Union[str, int]) -> logger:
     # remove default option from loguru. if we don't remove this, it will result in duplicated logs
     logger.remove(0)
     loguru_logger = logger.patch(patching)  # use custom serializer
-
     loguru_logger.add(
         sink=sys.stdout,
         level=level,
