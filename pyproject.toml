@@ -2,7 +2,10 @@
 name = "upils"
 version = "0.3.0"
 description = "Unified Python Utils"
-authors = ["Aslam Hadi Harsono <aslam.hadi@kumparan.com>"]
+authors = [
+    "Aslam Hadi Harsono <aslam.hadi@kumparan.com>",
+    "Malik Fajar Mubarok <malik.fajar@kumparan.com>"
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
