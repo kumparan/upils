@@ -42,8 +42,14 @@ def configure_logger(level: Union[str, int]) -> logger:
     https://docs.python.org/3/library/logging.html#logging-levels
     """
 
-    # remove default option from loguru. if we don't remove this, it will result in duplicated logs
-    logger.remove(0)
+    # Remove default option from loguru, if we don't remove this, it will result in duplicated logs.
+    # The pre-configured handler is guaranteed to have the index 0.
+    # If there is no active handler with such id, it will throw ValueError. If that happens, continue to create logger.
+    try:
+        logger.remove(0)
+    except ValueError:
+        pass
+
     loguru_logger = logger.patch(patching)  # use custom serializer
     loguru_logger.add(
         sink=sys.stdout,
