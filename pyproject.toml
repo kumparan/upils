@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "upils"
-version = "0.2.2"
+version = "0.2.3"
 description = "Unified Python Utils"
 authors = ["Aslam Hadi Harsono <aslam.hadi@kumparan.com>"]
 readme = "README.md"
