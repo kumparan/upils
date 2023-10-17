@@ -262,6 +262,17 @@ spelling = ["pyenchant (>=3.2,<4.0)"]
 testutils = ["gitpython (>3)"]
 
 [[package]]
+name = "pytz"
+version = "2023.3.post1"
+description = "World timezone definitions, modern and historical"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pytz-2023.3.post1-py2.py3-none-any.whl", hash = "sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7"},
+    {file = "pytz-2023.3.post1.tar.gz", hash = "sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b"},
+]
+
+[[package]]
 name = "tomlkit"
 version = "0.12.1"
 description = "Style preserving TOML library"
@@ -373,4 +384,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "02bb543ba370ecba59b5eb4cb773b87c11814afc3d67a9c912c77032e11e5748"
+content-hash = "41b97da6d63b1d68b5b486f75fdfd644d43ef721d380cb433f03d376d55271b2"
