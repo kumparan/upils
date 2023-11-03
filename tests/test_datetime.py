@@ -50,20 +50,20 @@ class DTCase(unittest.TestCase):
         self.assertEqual(utc7_dt.microsecond, 0)
         self.assertIn(utc7_dt.tzname(), ["Asia/Jakarta", "WIB"])
 
-    def test_datetime_to_timestamp_millis_from_str_tz(self):
+    def test_to_timestamp_millis_from_str_tz(self):
         dt_utc7: str
         dt_utc7 = "2023-01-01T08:00:00+07:00"
-        dt_millis = upils_datetime.datetime_to_timestamp_millis(dt_utc7)
+        dt_millis = upils_datetime.to_timestamp_millis(dt_utc7)
         dt_utc = datetime.utcfromtimestamp(dt_millis / 1000)
         self.assertEqual(dt_utc.day, 1)
         self.assertEqual(dt_utc.hour, 8) # not timezone_aware
         self.assertEqual(dt_utc.minute, 0)
         self.assertEqual(dt_utc.second, 0)
         
-    def test_datetime_to_timestamp_millis_from_datetime(self):
+    def test_to_timestamp_millis_from_datetime(self):
         dt: str
         dt = datetime(year=2023, month=1, day=1, hour=1, minute=0, second=15)
-        dt_millis = upils_datetime.datetime_to_timestamp_millis(dt)
+        dt_millis = upils_datetime.to_timestamp_millis(dt)
         dt_utc = datetime.utcfromtimestamp(dt_millis / 1000)
         self.assertEqual(dt_utc.day, 1)
         self.assertEqual(dt_utc.hour, 1)

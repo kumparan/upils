@@ -21,7 +21,7 @@ def to_utc7(date: datetime) -> datetime:
     return date.astimezone(tz=utc7_timezone)
 
 
-def datetime_to_timestamp_millis(dt: Union[datetime, str]) -> int:
+def to_timestamp_millis(dt: Union[datetime, str]) -> int:
     """Converting datetime to unix timestamp without changing timezone.
 
     Args:
