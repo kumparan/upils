@@ -39,3 +39,8 @@ def to_timestamp_millis(dt: Union[datetime, str]) -> int:
 
     epoch = datetime.utcfromtimestamp(0)
     return (dt - epoch).total_seconds() * 1000
+
+
+def to_timestamp_without_timezone_literal(date: datetime) -> str:
+    """Return the time in %Y-%m-%d %H:%M:%S format"""
+    return date.strftime("%Y-%m-%d %H:%M:%S")
