@@ -70,6 +70,19 @@ class DTCase(unittest.TestCase):
         self.assertEqual(dt_utc.minute, 0)
         self.assertEqual(dt_utc.second, 15)
 
+    def test_to_timestamp_without_timezone_literal(self):
+        dt = datetime(2023, 1, 1, 7, 0, 0)
+        dt = upils_datetime.to_timestamp_without_timezone_literal(dt)
+        self.assertEqual(dt, "2023-01-01 07:00:00")
+
+        dt = datetime(2023, 1, 1, 7, 1, 50, 999)
+        dt = upils_datetime.to_timestamp_without_timezone_literal(dt)
+        self.assertEqual(dt, "2023-01-01 07:01:50")
+
+        dt = datetime(2023, 1, 1, 12, 15, 30, 999, tzinfo=pytz.UTC)
+        dt = upils_datetime.to_timestamp_without_timezone_literal(dt)
+        self.assertEqual(dt, "2023-01-01 12:15:30")
+
 
 if __name__ == "__main__":
     unittest.main()
