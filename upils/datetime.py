@@ -44,3 +44,21 @@ def to_timestamp_millis(dt: Union[datetime, str]) -> int:
 def to_timestamp_without_timezone_literal(date: datetime) -> str:
     """Return the time in %Y-%m-%d %H:%M:%S format"""
     return date.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def from_datetime_literal(datetime_literal: str, datetime_format: str) -> datetime:
+    """Parse string datetime to datetime object.
+    Datetime without timezone information will be treated as UTC.
+
+    Args:
+        datetime_literal: datetime in string format.
+        datetime_format: datetime format.
+
+    Returns:
+        datetime object.
+    """
+    parsed_datetime = datetime.strptime(datetime_literal, datetime_format)
+    if not parsed_datetime.tzinfo:
+        parsed_datetime = parsed_datetime.replace(tzinfo=pytz.UTC)
+
+    return parsed_datetime
