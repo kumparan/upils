@@ -1,0 +1,28 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "test-ci" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test:
+
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install poetry
+      run: pipx install poetry
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'poetry'
+
+    - run: poetry install --only=main
+
+    - name: Run test
+      run: poetry run python -m unittest discover
