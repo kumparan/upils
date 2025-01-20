@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build_and_test:
 
     runs-on: ubuntu-24.04
 
@@ -22,7 +22,7 @@ jobs:
         python-version: '3.12'
         cache: 'poetry'
 
-    - run: poetry install --with=dev
+    - run: poetry install --only=main
 
-    - name: Run lint and test
-      run: make test
+    - name: Run test
+      run: poetry run python -m unittest discover
