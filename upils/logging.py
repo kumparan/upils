@@ -24,7 +24,7 @@ def serialize(record):
         "file": {"name": record["file"].name, "path": record["file"].path},
         "line": record["line"],
         "exception": exception,
-        "extra": record["extra"]
+        "extra": record["extra"],
     }
     return json.dumps(subset, default=str, ensure_ascii=False) + "\n"
 

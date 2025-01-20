@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytz
 
@@ -56,10 +56,10 @@ class DTCase(unittest.TestCase):
         dt_millis = upils_datetime.to_timestamp_millis(dt_utc7)
         dt_utc = datetime.utcfromtimestamp(dt_millis / 1000)
         self.assertEqual(dt_utc.day, 1)
-        self.assertEqual(dt_utc.hour, 8) # not timezone_aware
+        self.assertEqual(dt_utc.hour, 8)  # not timezone_aware
         self.assertEqual(dt_utc.minute, 0)
         self.assertEqual(dt_utc.second, 0)
-        
+
     def test_to_timestamp_millis_from_datetime(self):
         dt: str
         dt = datetime(year=2023, month=1, day=1, hour=1, minute=0, second=15)
@@ -83,35 +83,49 @@ class DTCase(unittest.TestCase):
         dt = upils_datetime.to_timestamp_without_timezone_literal(dt)
         self.assertEqual(dt, "2023-01-01 12:15:30")
 
-    def test_to_datetime_with_timezone(self):
+    def test_from_datetime_literal(self):
         datetime_literal = "2024-04-01"
         datetime_format = "%Y-%m-%d"
         dt_expected = datetime(2024, 4, 1, 0, 0, 0, 000, tzinfo=pytz.UTC)
-        dt_actual = upils_datetime.to_datetime_with_timezone(datetime_literal, datetime_format)
+        dt_actual = upils_datetime.from_datetime_literal(
+            datetime_literal, datetime_format
+        )
         self.assertEqual(dt_expected, dt_actual)
 
         datetime_literal = "2024-04-01 07:00:00"
         datetime_format = "%Y-%m-%d %H:%M:%S"
         dt_expected = datetime(2024, 4, 1, 7, 0, 0, 000, tzinfo=pytz.UTC)
-        dt_actual = upils_datetime.to_datetime_with_timezone(datetime_literal, datetime_format)
+        dt_actual = upils_datetime.from_datetime_literal(
+            datetime_literal, datetime_format
+        )
         self.assertEqual(dt_expected, dt_actual)
 
         datetime_literal = "2024-04-01 07:00:00+0000"
         datetime_format = "%Y-%m-%d %H:%M:%S%z"
         dt_expected = datetime(2024, 4, 1, 7, 0, 0, 000, tzinfo=pytz.UTC)
-        dt_actual = upils_datetime.to_datetime_with_timezone(datetime_literal, datetime_format)
+        dt_actual = upils_datetime.from_datetime_literal(
+            datetime_literal, datetime_format
+        )
         self.assertEqual(dt_expected, dt_actual)
 
         datetime_literal = "2024-04-01 07:00:00+0700"
         datetime_format = "%Y-%m-%d %H:%M:%S%z"
-        dt_expected = datetime(2024, 4, 1, 7, 0, 0, 000, tzinfo=timezone(timedelta(hours=7)))
-        dt_actual = upils_datetime.to_datetime_with_timezone(datetime_literal, datetime_format)
+        dt_expected = datetime(
+            2024, 4, 1, 7, 0, 0, 000, tzinfo=timezone(timedelta(hours=7))
+        )
+        dt_actual = upils_datetime.from_datetime_literal(
+            datetime_literal, datetime_format
+        )
         self.assertEqual(dt_expected, dt_actual)
 
         datetime_literal = "2024-04-01 07:00:00-1200"
         datetime_format = "%Y-%m-%d %H:%M:%S%z"
-        dt_expected = datetime(2024, 4, 1, 7, 0, 0, 000, tzinfo=timezone(timedelta(days=-1, hours=12)))
-        dt_actual = upils_datetime.to_datetime_with_timezone(datetime_literal, datetime_format)
+        dt_expected = datetime(
+            2024, 4, 1, 7, 0, 0, 000, tzinfo=timezone(timedelta(days=-1, hours=12))
+        )
+        dt_actual = upils_datetime.from_datetime_literal(
+            datetime_literal, datetime_format
+        )
         self.assertEqual(dt_expected, dt_actual)
 
 
