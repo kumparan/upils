@@ -13,6 +13,19 @@ class StringCase(unittest.TestCase):
         )
         self.assertEqual(expected_base64_string, actual_base64_string)
 
+    def test_stringify_empty_value(self):
+        value = None
+        actual_value = upils_string.stringify_value(value)
+        self.assertTrue(isinstance(actual_value, str))
+        self.assertEqual(actual_value, "NULL")
+
+    def test_stringify_non_empty_value(self):
+        value = 123
+        expected_value = "'123'"
+        actual_value = upils_string.stringify_value(value)
+        self.assertTrue(isinstance(actual_value, str))
+        self.assertEqual(actual_value, expected_value)
+
 
 if __name__ == "__main__":
     unittest.main()
