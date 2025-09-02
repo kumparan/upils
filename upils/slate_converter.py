@@ -1,4 +1,8 @@
-"""Module to convert a SlateJS rich-text to plain-text."""
+"""
+    Module to convert a SlateJS rich-text to plain-text.
+
+    Based on the go-utils slate_converter https://github.com/kumparan/go-utils/blob/master/slate_converter.go
+"""
 
 import json
 import re

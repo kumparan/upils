@@ -1,3 +1,5 @@
+# Based on the go-utils slate_converter_test https://github.com/kumparan/go-utils/blob/master/slate_converter_test.go
+
 import unittest
 
 from upils.slate_converter import SlateDocument
