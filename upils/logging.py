@@ -1,4 +1,5 @@
 """Module providing custom configuration for loguru"""
+
 import json
 import sys
 from typing import Union
