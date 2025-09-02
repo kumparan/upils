@@ -1,5 +1,6 @@
-from upils.iterable import replace_none_in_iterable
 import unittest
+
+from upils.iterable import replace_none_in_iterable
 
 
 class IterableCase(unittest.TestCase):
@@ -14,6 +15,7 @@ class IterableCase(unittest.TestCase):
         replacement = None
         with self.assertRaises(ValueError):
             replace_none_in_iterable(tuple_with_none, replacement)
+
 
 if __name__ == "__main__":
     unittest.main()

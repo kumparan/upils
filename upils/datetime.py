@@ -1,4 +1,5 @@
 """Module providing list of function related to date"""
+
 from datetime import datetime
 from typing import Union
 
