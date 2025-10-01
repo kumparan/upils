@@ -201,6 +201,16 @@ RedMagic 10 Pro+ berada di posisi ketiga dengan skor AnTuTu 2.879.356, diikuti o
         result = input.to_plain_text()
         assert result == expected
 
+    def test_text_with_all_types_of_marks(self):
+        input_json = """{"document":{"nodes":[{"object":"block","type":"heading-large","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"title ","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"bold","marks":[{"object":"mark","type":"bold"}]},{"object":"leaf","text":" pada awal kalimat, kemudian ","marks":[]},{"object":"leaf","text":"italic","marks":[{"object":"mark","type":"italic"}]},{"object":"leaf","text":" dan ","marks":[]},{"object":"leaf","text":"underline","marks":[{"object":"mark","type":"underline"}]},{"object":"leaf","text":" pada tengah kalimat, serta pada akhir kalimat ","marks":[]},{"object":"leaf","text":"semuanya","marks":[{"object":"mark","type":"bold"},{"object":"mark","type":"italic"},{"object":"mark","type":"underline"}]}]}]}]}}"""
+        expected = "bold pada awal kalimat, kemudian italic dan underline pada tengah kalimat, serta pada akhir kalimat semuanya."
+
+        input = SlateDocument.parse(input_json)
+        assert input is not None
+
+        result = input.to_plain_text()
+        assert result == expected
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -7,7 +7,8 @@ Based on the go-utils slate_converter https://github.com/kumparan/go-utils/blob/
 import json
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from itertools import chain, islice, tee
+from typing import Any, Dict, Iterable, Iterator, List, Tuple
 
 # Regular expressions
 MULTIPLE_DOTS_REGEX = re.compile(r"\.+")
@@ -203,8 +204,38 @@ def serialize_slate_nodes(
 
 
 def serialize_slate_leaves(leaves: List[SlateLeaf], separator: str) -> str:
-    """Joins leaf texts with the specified separator."""
-    return separator.join([leaf.text for leaf in leaves if leaf.text])
+    """
+    Joins leaf texts with the given separator while trimming spaces around
+    marked leaves (bold, italic, underline) to avoid unwanted spacing.
+
+    Rules:
+    - Both neighbors have marks → strip leading/trailing spaces.
+    - Only previous leaf has marks → strip trailing space.
+    - Only next leaf has marks → strip leading space.
+    - No marked neighbors → keep text as is.
+    """
+    leaf_texts = []
+    for prev_leaf, current_leaf, next_leaf in previous_and_next_item(leaves):
+        if not current_leaf.text:
+            continue
+
+        is_prev_leaf_has_marks = bool(getattr(prev_leaf, "marks", []))
+        is_next_leaf_has_marks = bool(getattr(next_leaf, "marks", []))
+
+        # Condition 1: If previous and next leaf has marks, then strip whitespaces in front and in the end
+        if is_prev_leaf_has_marks and is_next_leaf_has_marks:
+            leaf_texts.append(current_leaf.text.strip())
+        # Condition 2: If previous leaf has marks, then strip trailing whitespace
+        elif is_prev_leaf_has_marks:
+            leaf_texts.append(current_leaf.text.rstrip())
+        # Condition 3: If next leaf has marks, then strip leading whitespace
+        elif is_next_leaf_has_marks:
+            leaf_texts.append(current_leaf.text.lstrip())
+        # Condition 4: If previous and next leaf has no marks, then append text as is
+        else:
+            leaf_texts.append(current_leaf.text)
+
+    return separator.join(leaf_texts)
 
 
 def clean_up_list(text: str) -> str:
@@ -218,3 +249,15 @@ def ends_with_punctuation(text: str) -> bool:
     if not text:
         return False
     return text[-1] in PUNCTUATION_MARKS
+
+
+def previous_and_next_item(items: Iterable[Any]) -> Iterator[Tuple[Any, Any, Any]]:
+    """Yield (previous, current, next) tuples from the given iterable."""
+
+    prev_items, current_items, next_items = tee(
+        items, 3
+    )  # 3 is the number of iterators we need from tee(): prev, current, next
+    prev_items = chain([None], prev_items)  # prepend None to align previous
+    next_items = chain(islice(next_items, 1, None), [None])  # append None to align next
+
+    return zip(prev_items, current_items, next_items)
