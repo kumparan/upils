@@ -211,6 +211,74 @@ RedMagic 10 Pro+ berada di posisi ketiga dengan skor AnTuTu 2.879.356, diikuti o
         result = input.to_plain_text()
         assert result == expected
 
+    def test_no_space_handling_for_all_special_characters(self):
+        """
+        Ensure serialize_slate_leaves handles all characters in
+        NO_SPACE_AFTER and NO_SPACE_BEFORE without inserting unwanted spaces.
+        """
+        input_json = """{"document":{"nodes":[{"object":"block","type":"heading-large","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"slate lagi slate lagi","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"(","marks":[]},{"object":"leaf","text":"italic","marks":[{"object":"mark","type":"italic"}]},{"object":"leaf","text":") before-","marks":[]},{"object":"leaf","text":"bold","marks":[{"object":"mark","type":"bold"}]},{"object":"leaf","text":"-after “","marks":[]},{"object":"leaf","text":"quote","marks":[{"object":"mark","type":"underline"}]},{"object":"leaf","text":"” ","marks":[]},{"object":"leaf","text":"bold","marks":[{"object":"mark","type":"bold"}]},{"object":"leaf","text":"! ","marks":[]},{"object":"leaf","text":"italic","marks":[{"object":"mark","type":"italic"}]},{"object":"leaf","text":"? ","marks":[]},{"object":"leaf","text":"underline","marks":[{"object":"mark","type":"underline"}]},{"object":"leaf","text":". ","marks":[]},{"object":"leaf","text":"bold","marks":[{"object":"mark","type":"bold"}]},{"object":"leaf","text":", ","marks":[]},{"object":"leaf","text":"italic","marks":[{"object":"mark","type":"italic"}]},{"object":"leaf","text":": ","marks":[]},{"object":"leaf","text":"underline","marks":[{"object":"mark","type":"underline"}]},{"object":"leaf","text":"; ","marks":[]},{"object":"leaf","text":"all","marks":[{"object":"mark","type":"bold"},{"object":"mark","type":"italic"},{"object":"mark","type":"underline"}]},{"object":"leaf","text":")","marks":[]}]}]}]}}"""
+        expected = "(italic) before-bold-after “quote” bold! italic? underline. bold, italic: underline; all)."
+
+        input_doc = SlateDocument.parse(input_json)
+        assert input_doc is not None
+
+        result = input_doc.to_plain_text()
+        assert result == expected
+
+    def test_nested_punctuation_and_quotes(self):
+        """
+        Ensure serialize_slate_leaves correctly handles punctuation
+        nested within parentheses and immediately following quotes.
+        """
+        input_json = """{"document":{"nodes":[{"object":"block","type":"heading-large","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"slate lagi slate lagi","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"(","marks":[]},{"object":"leaf","text":"italic","marks":[{"object":"mark","type":"italic"}]},{"object":"leaf","text":"!) “","marks":[]},{"object":"leaf","text":"underline","marks":[{"object":"mark","type":"underline"}]},{"object":"leaf","text":"”.","marks":[]}]}]}]}}"""
+        expected = "(italic!) “underline”."
+
+        input_doc = SlateDocument.parse(input_json)
+        assert input_doc is not None
+
+        result = input_doc.to_plain_text()
+        assert result == expected
+
+    def test_trim_spaces_around_marked_segments(self):
+        """
+        Ensure spaces before or after marked text are trimmed correctly.
+        """
+        input_json = """{"document":{"nodes":[{"object":"block","type":"heading-large","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"slate lagi slate lagi","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"plain ","marks":[]},{"object":"leaf","text":"bold_word_only","marks":[{"object":"mark","type":"bold"}]},{"object":"leaf","text":" italic_also_in_beginning_space","marks":[{"object":"mark","type":"italic"}]},{"object":"leaf","text":" ","marks":[]},{"object":"leaf","text":"underline_in_ending_space","marks":[{"object":"mark","type":"underline"}]},{"object":"leaf","text":" all_in_beginning_and_end ","marks":[{"object":"mark","type":"bold"},{"object":"mark","type":"italic"},{"object":"mark","type":"underline"}]}]}]}]}}"""
+        expected = "plain bold_word_only italic_also_in_beginning_space underline_in_ending_space all_in_beginning_and_end."
+
+        input_doc = SlateDocument.parse(input_json)
+        assert input_doc is not None
+
+        result = input_doc.to_plain_text()
+        assert result.strip() == expected
+
+    def test_ensure_ends_with_punctuation_strips_trailing_space(self):
+        """
+        Ensure ensure_ends_with_punctuation trims trailing spaces before checking
+        punctuation, preventing '. '
+        """
+        input_json = """{"document":{"nodes":[{"object":"block","type":"heading-large","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"slate lagi slate lagi","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"ends with extra space after the dot. ","marks":[]}]}]}]}}"""
+        expected = "ends with extra space after the dot."
+
+        input_doc = SlateDocument.parse(input_json)
+        assert input_doc is not None
+
+        result = input_doc.to_plain_text()
+        assert result == expected
+
+    def test_paragraphs_end_with_newline_and_punctuation(self):
+        """
+        Ensure node with paragraph type always ends with a newline.
+        """
+        input_json = """{"document":{"nodes":[{"object":"block","type":"heading-large","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"slate lagi slate lagi","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"Paragraf satu","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"Paragraf dua","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"Paragraf tiga","marks":[]}]}]}]}}"""
+        expected = "Paragraf satu.\nParagraf dua.\nParagraf tiga."
+
+        input_doc = SlateDocument.parse(input_json)
+        assert input_doc is not None
+
+        result = input_doc.to_plain_text()
+        assert result == expected
+
 
 if __name__ == "__main__":
     unittest.main()
