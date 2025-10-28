@@ -20,11 +20,11 @@ DOT_SPACE_REGEX = re.compile(r"\.\s")
 COMMA_SEPARATOR = ","
 DOT_SEPARATOR = "."
 NEWLINE = "\n"
-PUNCTUATION_MARKS = ".,:;!?"
+BASIC_PUNCTUATION_MARKS = ".,:;!?"
 SENTENCE_SEPARATOR = ". "
 SPACE_SEPARATOR = " "
 NO_SPACE_AFTER = ("-", "(", '"', "“")
-NO_SPACE_BEFORE = ("-", ")", '"', "”") + tuple(PUNCTUATION_MARKS)
+NO_SPACE_BEFORE = ("-", ")", '"', "”") + tuple(BASIC_PUNCTUATION_MARKS)
 
 NODE_TYPE_HEADING_LARGE = "heading-large"
 NODE_TYPE_HEADING_MEDIUM = "heading-medium"
@@ -89,21 +89,13 @@ class SlateNode:
         # Case 1: If this node has leaves, check the last leaf's text.
         if self.leaves:
             last_slate_leaf = self.leaves[-1]
-            if last_slate_leaf.text:
-                last_slate_leaf.text = last_slate_leaf.text.rstrip()
-                if not ends_with_punctuation(last_slate_leaf.text):
-                    last_slate_leaf.text += SENTENCE_SEPARATOR
-            self.leaves[-1] = last_slate_leaf
+            self.leaves[-1] = _ensure_leaf_punctuation(last_slate_leaf)
 
         # Case 2: Check last child node's leaves.
         if self.nodes and self.nodes[-1].leaves:
             last_node = self.nodes[-1]
             last_slate_leaf = last_node.leaves[-1]
-            if last_slate_leaf.text:
-                last_slate_leaf.text = last_slate_leaf.text.rstrip()
-                if not ends_with_punctuation(last_slate_leaf.text):
-                    last_slate_leaf.text += SENTENCE_SEPARATOR
-            last_node.leaves[-1] = last_slate_leaf
+            last_node.leaves[-1] = _ensure_leaf_punctuation(last_slate_leaf)
 
 
 @dataclass
@@ -283,7 +275,17 @@ def ends_with_punctuation(text: str) -> bool:
     """Checks if text ends with punctuation."""
     if not text:
         return False
-    return text[-1] in PUNCTUATION_MARKS
+    return text[-1] in BASIC_PUNCTUATION_MARKS
+
+
+def _ensure_leaf_punctuation(slate_leaf: SlateLeaf):
+    """Checks if slate leaf text tends with punctuation."""
+    if slate_leaf.text:
+        slate_leaf.text = slate_leaf.text.rstrip()
+        if not ends_with_punctuation(slate_leaf.text):
+            slate_leaf.text += SENTENCE_SEPARATOR
+
+    return slate_leaf
 
 
 def previous_and_next_item(items: Iterable[Any]) -> Iterator[Tuple[Any, Any, Any]]:
