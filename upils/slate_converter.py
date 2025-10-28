@@ -1,12 +1,14 @@
 """
 Module to convert a SlateJS rich-text to plain-text.
 
-Based on the go-utils slate_converter https://github.com/kumparan/go-utils/blob/master/slate_converter.go
+Based on the go-utils slate_converter
+https://github.com/kumparan/go-utils/blob/master/slate_converter.go
 """
 
 import json
 import re
 from dataclasses import dataclass, field
+from io import StringIO
 from itertools import chain, islice, tee
 from typing import Any, Dict, Iterable, Iterator, List, Tuple
 
@@ -18,9 +20,11 @@ DOT_SPACE_REGEX = re.compile(r"\.\s")
 COMMA_SEPARATOR = ","
 DOT_SEPARATOR = "."
 NEWLINE = "\n"
-PUNCTUATION_MARKS = ".,:;!?"
+BASIC_PUNCTUATION_MARKS = ".,:;!?"
 SENTENCE_SEPARATOR = ". "
 SPACE_SEPARATOR = " "
+NO_SPACE_AFTER = ("-", "(", '"', "“")
+NO_SPACE_BEFORE = ("-", ")", '"', "”") + tuple(BASIC_PUNCTUATION_MARKS)
 
 NODE_TYPE_HEADING_LARGE = "heading-large"
 NODE_TYPE_HEADING_MEDIUM = "heading-medium"
@@ -78,21 +82,20 @@ class SlateNode:
         )
 
     def ensure_ends_with_punctuation(self) -> None:
-        """Ensures that the last leaf of a paragraph node ends with punctuation."""
+        """
+        Ensures that the last leaf of a paragraph node ends with punctuation.
+        Trims trailing spaces first to avoid '. '
+        """
         # Case 1: If this node has leaves, check the last leaf's text.
         if self.leaves:
             last_slate_leaf = self.leaves[-1]
-            if last_slate_leaf.text and not ends_with_punctuation(last_slate_leaf.text):
-                last_slate_leaf.text += SENTENCE_SEPARATOR
-            self.leaves[-1] = last_slate_leaf
+            self.leaves[-1] = _ensure_leaf_punctuation(last_slate_leaf)
 
         # Case 2: Check last child node's leaves.
         if self.nodes and self.nodes[-1].leaves:
             last_node = self.nodes[-1]
             last_slate_leaf = last_node.leaves[-1]
-            if last_slate_leaf.text and not ends_with_punctuation(last_slate_leaf.text):
-                last_slate_leaf.text += SENTENCE_SEPARATOR
-            last_node.leaves[-1] = last_slate_leaf
+            last_node.leaves[-1] = _ensure_leaf_punctuation(last_slate_leaf)
 
 
 @dataclass
@@ -121,13 +124,16 @@ class SlateDocument:
 
     def to_plain_text(self) -> str:
         """Converts a Slate document into a plain-text format."""
-        text = serialize_slate_nodes(self.nodes, NEWLINE, SPACE_SEPARATOR)
+        text = serialize_slate_nodes(self.nodes, NEWLINE, SPACE_SEPARATOR, True)
         text = re.sub(r"\n+", NEWLINE, text)
         return text.strip()
 
 
 def serialize_slate_nodes(
-    nodes: List[SlateNode], node_separator: str, leaf_separator: str
+    nodes: List[SlateNode],
+    node_separator: str,
+    leaf_separator: str,
+    is_root_level: bool = False,  # Recursive calls sets this as false
 ) -> str:
     """Recursively processes nodes and its content into a plain-text format."""
     result = []
@@ -200,13 +206,17 @@ def serialize_slate_nodes(
         elif node.leaves:
             result.append(serialize_slate_leaves(node.leaves, leaf_separator))
 
+        # Ensure a newline between top-level paragraphs
+        if is_root_level and result and not result[-1].endswith(NEWLINE):
+            result.append(NEWLINE)
+
     return "".join(result)
 
 
 def serialize_slate_leaves(leaves: List[SlateLeaf], separator: str) -> str:
     """
-    Joins leaf texts with the given separator while trimming spaces around
-    marked leaves (bold, italic, underline) to avoid unwanted spacing.
+    Serialize Slate leaves into text, trimming spaces around
+    marked (bold/italic/underline) segments to avoid unwanted spacing.
 
     Rules:
     - Both neighbors have marks → strip leading/trailing spaces.
@@ -219,23 +229,40 @@ def serialize_slate_leaves(leaves: List[SlateLeaf], separator: str) -> str:
         if not current_leaf.text:
             continue
 
-        is_prev_leaf_has_marks = bool(getattr(prev_leaf, "marks", []))
-        is_next_leaf_has_marks = bool(getattr(next_leaf, "marks", []))
+        prev_leaf_has_marks = bool(getattr(prev_leaf, "marks", []))
+        current_leaf_has_marks = bool(getattr(current_leaf, "marks", []))
+        next_leaf_has_marks = bool(getattr(next_leaf, "marks", []))
 
-        # Condition 1: If previous and next leaf has marks, then strip whitespaces in front and in the end
-        if is_prev_leaf_has_marks and is_next_leaf_has_marks:
-            leaf_texts.append(current_leaf.text.strip())
-        # Condition 2: If previous leaf has marks, then strip trailing whitespace
-        elif is_prev_leaf_has_marks:
-            leaf_texts.append(current_leaf.text.rstrip())
-        # Condition 3: If next leaf has marks, then strip leading whitespace
-        elif is_next_leaf_has_marks:
-            leaf_texts.append(current_leaf.text.lstrip())
+        # Condition 1: If previous and next leaf has marks, or current leaf has marks,
+        # then strip whitespaces in front and in the end
+        if current_leaf_has_marks or (prev_leaf_has_marks and next_leaf_has_marks):
+            clean_text = current_leaf.text.strip()
+        # Condition 2: If previous leaf has marks, then strip leading whitespace
+        elif prev_leaf_has_marks:
+            clean_text = current_leaf.text.lstrip()
+        # Condition 3: If next leaf has marks, then strip trailing whitespace
+        elif next_leaf_has_marks:
+            clean_text = current_leaf.text.rstrip()
         # Condition 4: If previous and next leaf has no marks, then append text as is
         else:
-            leaf_texts.append(current_leaf.text)
+            clean_text = current_leaf.text
 
-    return separator.join(leaf_texts)
+        if not clean_text:
+            continue
+        leaf_texts.append(clean_text)
+
+    text = StringIO()
+    for index, part in enumerate(leaf_texts):
+        if index > 0:
+            prev = leaf_texts[index - 1]
+            should_insert_separator = not (
+                prev.endswith(NO_SPACE_AFTER) or part.startswith(NO_SPACE_BEFORE)
+            )
+            if should_insert_separator:
+                text.write(separator)
+        text.write(part)
+
+    return text.getvalue()
 
 
 def clean_up_list(text: str) -> str:
@@ -248,7 +275,17 @@ def ends_with_punctuation(text: str) -> bool:
     """Checks if text ends with punctuation."""
     if not text:
         return False
-    return text[-1] in PUNCTUATION_MARKS
+    return text[-1] in BASIC_PUNCTUATION_MARKS
+
+
+def _ensure_leaf_punctuation(slate_leaf: SlateLeaf):
+    """Checks if slate leaf text tends with punctuation."""
+    if slate_leaf.text:
+        slate_leaf.text = slate_leaf.text.rstrip()
+        if not ends_with_punctuation(slate_leaf.text):
+            slate_leaf.text += SENTENCE_SEPARATOR
+
+    return slate_leaf
 
 
 def previous_and_next_item(items: Iterable[Any]) -> Iterator[Tuple[Any, Any, Any]]:
