@@ -17,3 +17,13 @@ def stringify_value(value: str | None, replacement_value: str = "NULL") -> str:
     if not isinstance(replacement_value, str):
         raise ValueError("Replacement must be a string value.")
     return replacement_value if value is None or value == "" else f"'{value}'"
+
+
+def format_thousand_separator(val: int | str) -> str:
+    """Format numbers in thousands."""
+    try:
+        numeric_val = float(str(val).strip())
+        return f"{numeric_val:,.0f}".replace(",", ".")
+    except (ValueError, TypeError):
+        return str(val)
+    
