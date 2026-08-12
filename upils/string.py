@@ -26,4 +26,3 @@ def format_thousand_separator(val: int | str) -> str:
         return f"{numeric_val:,.0f}".replace(",", ".")
     except (ValueError, TypeError):
         return str(val)
-    
