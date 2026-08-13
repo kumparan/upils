@@ -30,8 +30,8 @@ class StringCase(unittest.TestCase):
         self.assertEqual(upils_string.format_thousand_separator(1500000), "1.500.000")
         self.assertEqual(upils_string.format_thousand_separator(" 1000 "), "1.000")
         self.assertEqual(
-            upils_string.format_thousand_separator(12345678901234567890), 
-            "12.345.678.901.234.567.890"
+            upils_string.format_thousand_separator(12345678901234567890),
+            "12.345.678.901.234.567.890",
         )
         with self.assertRaises(ValueError):
             upils_string.format_thousand_separator("1000a")

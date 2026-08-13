@@ -21,7 +21,7 @@ def stringify_value(value: str | None, replacement_value: str = "NULL") -> str:
 
 def format_thousand_separator(val: int | str) -> str:
     """Format numbers in thousands. Only accepts integers or digit-only strings."""
-    if isinstance(val, bool):
+    if isinstance(val, bool) or not isinstance(val, (int, str)):
         raise TypeError(f"Expected int or digit string, got bool: {val}")
 
     if isinstance(val, str):
@@ -30,7 +30,7 @@ def format_thousand_separator(val: int | str) -> str:
             raise ValueError(f"Expected digit-only string, got {val}")
         val = int(val_str)
 
-    if not isinstance(val, int) or val < 0:
+    if val < 0:
         raise ValueError(f"Expected non-negative int or digit string, got {val}")
 
     return f"{val:,}".replace(",", ".")
