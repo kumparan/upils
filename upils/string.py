@@ -21,13 +21,16 @@ def stringify_value(value: str | None, replacement_value: str = "NULL") -> str:
 
 def format_thousand_separator(val: int | str) -> str:
     """Format numbers in thousands. Only accepts integers or digit-only strings."""
-    val_str = str(val).strip()
+    if isinstance(val, bool):
+        raise ValueError(f"Expected int or digit string, got bool: {val}")
 
-    if not val_str.isdigit():
-        raise ValueError(f"Invalid input containing non-digit.")
+    if isinstance(val, str):
+        val_str = val.strip()
+        if not (val_str.isdecimal() and val_str.isascii()):
+            raise ValueError(f"Expected digit-only string, got {val}")
+        val = int(val_str)
 
-    try:
-        numeric_val = int(val_str)
-        return f"{numeric_val:,.0f}".replace(",", ".")
-    except (ValueError, TypeError):
-        return "0"
+    if not isinstance(val, int) or val < 0:
+        raise ValueError(f"Expected non-negative int or digit string, got {val}")
+
+    return f"{val:,}".replace(",", ".")
