@@ -1,7 +1,6 @@
 """Module to process and transform strings."""
 
 import hashlib
-import re
 from base64 import b64encode
 from typing import Callable
 
