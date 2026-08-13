@@ -1,6 +1,7 @@
 """Module to process and transform strings."""
 
 import hashlib
+import re
 from base64 import b64encode
 from typing import Callable
 
@@ -20,9 +21,14 @@ def stringify_value(value: str | None, replacement_value: str = "NULL") -> str:
 
 
 def format_thousand_separator(val: int | str) -> str:
-    """Format numbers in thousands."""
+    """Format numbers in thousands. Only accepts integers or digit-only strings."""
+    val_str = str(val).strip()
+
+    if not val_str.isdigit():
+        raise ValueError(f"Invalid input containing non-digit.")
+
     try:
-        numeric_val = float(str(val).strip())
+        numeric_val = int(val_str)
         return f"{numeric_val:,.0f}".replace(",", ".")
     except (ValueError, TypeError):
-        return str(val)
+        return "0"
