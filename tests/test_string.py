@@ -35,6 +35,8 @@ class StringCase(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             upils_string.format_thousand_separator("1000a")
+        with self.assertRaises(ValueError):
+            upils_string.format_thousand_separator("faza")
         with self.assertRaises(TypeError):
             upils_string.format_thousand_separator(1234.56)
         with self.assertRaises(ValueError):
