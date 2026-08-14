@@ -29,6 +29,8 @@ class StringCase(unittest.TestCase):
     def test_format_thousand_separator(self):
         self.assertEqual(upils_string.format_thousand_separator(1500000), "1.500.000")
         self.assertEqual(upils_string.format_thousand_separator(" 1000 "), "1.000")
+        self.assertEqual(upils_string.format_thousand_separator("-1000"), "-1.000")
+        self.assertEqual(upils_string.format_thousand_separator(-1000), "-1.000")
         self.assertEqual(
             upils_string.format_thousand_separator(12345678901234567890),
             "12.345.678.901.234.567.890",
@@ -39,8 +41,6 @@ class StringCase(unittest.TestCase):
             upils_string.format_thousand_separator("faza")
         with self.assertRaises(TypeError):
             upils_string.format_thousand_separator(1234.56)
-        with self.assertRaises(ValueError):
-            upils_string.format_thousand_separator(-1000)
 
 
 if __name__ == "__main__":
