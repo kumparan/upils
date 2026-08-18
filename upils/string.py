@@ -26,11 +26,9 @@ def format_thousand_separator(val: int | str) -> str:
 
     if isinstance(val, str):
         val_str = val.strip()
-        if not (val_str.isdecimal() and val_str.isascii()):
+        val_str_to_check = val_str.removeprefix("-")
+        if not (val_str_to_check.isdecimal() and val_str_to_check.isascii()):
             raise ValueError(f"Expected digit-only string, got {val!r}")
         val = int(val_str)
-
-    if val < 0:
-        raise ValueError(f"Expected non-negative int or digit string, got {val!r}")
 
     return f"{val:,}".replace(",", ".")
