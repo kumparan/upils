@@ -279,6 +279,22 @@ RedMagic 10 Pro+ berada di posisi ketiga dengan skor AnTuTu 2.879.356, diikuti o
         result = input_doc.to_plain_text()
         assert result == expected
 
+    def test_ensure_word_joiner_is_removed_from_text(self):
+        """
+        Ensure every word joiner inside SlateLeaf.text is removed.
+
+        Word joiner (U+2060) is an invisible, zero-width control character in Unicode
+        that tells text layout engines not to split a line at its position.
+        """
+        input_json = """{"document":{"nodes":[{"object":"block","type":"heading-large","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"slate lagi slate lagi","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"Pa⁠r⁠a⁠g⁠r⁠a⁠f⁠ ⁠s⁠a⁠t⁠u ⁠de⁠nga⁠n ⁠wo⁠rd j⁠oi⁠ner⁠","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"Paragraf dua tanpa word joiner","marks":[]}]}]},{"object":"block","type":"paragraph","data":{},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"Paragraf tiga dengan word ⁠joiner⁠","marks":[]}]}]}]}}"""
+        expected = "Paragraf satu dengan word joiner.\nParagraf dua tanpa word joiner.\nParagraf tiga dengan word joiner."
+
+        input_doc = SlateDocument.parse(input_json)
+        assert input_doc is not None
+
+        result = input_doc.to_plain_text()
+        assert result == expected
+
 
 if __name__ == "__main__":
     unittest.main()

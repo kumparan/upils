@@ -25,6 +25,7 @@ SENTENCE_SEPARATOR = ". "
 SPACE_SEPARATOR = " "
 NO_SPACE_AFTER = ("-", "(", '"', "“")
 NO_SPACE_BEFORE = ("-", ")", '"', "”") + tuple(BASIC_PUNCTUATION_MARKS)
+WORD_JOINER = "\u2060"
 
 NODE_TYPE_HEADING_LARGE = "heading-large"
 NODE_TYPE_HEADING_MEDIUM = "heading-medium"
@@ -45,6 +46,10 @@ class SlateLeaf:
     object: str = "leaf"
     text: str = ""
     marks: List[Any] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        if self.text:
+            self.text = self.text.replace(WORD_JOINER, "")
 
     @classmethod
     def from_dict(cls, leaf: Dict) -> "SlateLeaf":
