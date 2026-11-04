@@ -24,3 +24,14 @@ jobs:
 
     - name: Run test
       run: poetry run python -m unittest discover
+
+    - name: Export locked dependencies
+      run: |
+        poetry self add poetry-plugin-export
+        poetry export --all-groups -f requirements.txt --without-hashes -o requirements-audit.txt
+
+    - name: Run pip-audit
+      uses: pypa/gh-action-pip-audit@v1.1.0
+      with:
+        inputs: requirements-audit.txt
+        no-deps: true
