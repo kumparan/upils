@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "upils"
-version = "0.16.0"
+version = "0.17.0"
 description = "Unified Python Utils. Requires python 3.10 and later"
 authors = [
     "Aslam Hadi Harsono <aslam.hadi@kumparan.com>",
@@ -12,13 +12,13 @@ authors = [
 readme = "README.md"
 
 [tool.poetry.dependencies]
-loguru = "^0.7.2"
+loguru = ">=0.7.3"
 python = "^3.10"
-pytz = "^2022.1"
+pytz = ">=2026.6"
 
 
 [tool.poetry.group.dev.dependencies]
-pylint = "^2.17.6"
+pylint = "^4.1.3"
 black = "^26.10.1"
 
 [build-system]
